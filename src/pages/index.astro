@@ -1,11 +1,122 @@
 ---
-import Welcome from '../components/Welcome.astro';
 import Layout from '../layouts/Layout.astro';
-
-// Welcome to Astro! Wondering what to do next? Check out the Astro documentation at https://docs.astro.build
-// Don't want to use any of this? Delete everything in this file, the `assets`, `components`, and `layouts` directories, and start fresh.
+const mail = 'mailto:aravind@brainodad.com?subject=BrainoDad%20program%20enquiry';
 ---
+<Layout title="BrainoDad | Learn Smarter. Remember Better." description="BrainoDad helps learners build effective memory and study skills through practical techniques, guided practice and recall challenges.">
+  <header class="site-header">
+    <div class="container nav">
+      <a class="brand" href="/" aria-label="BrainoDad home"><span class="brand-mark" aria-hidden="true">B<span>✦</span></span><span>Braino<span class="brand-accent">Dad</span><small>LEARN SMARTER</small></span></a>
+      <nav class="navlinks" aria-label="Main navigation">
+        <a href="#approach">Our approach</a>
+        <a href="#programs">Programs</a>
+        <a href="#about">About</a>
+      </nav>
+      <a class="nav-cta" href="#contact">Get in touch <span aria-hidden="true">↗</span></a>
+    </div>
+  </header>
 
-<Layout>
-	<Welcome />
+  <main id="main">
+    <section class="hero">
+      <div class="container hero-layout">
+        <div class="hero-copy">
+          <div class="eyebrow"><span class="spark">✦</span> MEMORY • STUDY SKILLS • CONFIDENCE</div>
+          <h1>Study with clarity.<br /><em>Remember with confidence.</em></h1>
+          <p class="hero-lead">Learning shouldn't feel like reading the same page over and over. Discover practical ways to understand more, remember what matters, and recall it when you need it.</p>
+          <div class="actions">
+            <a class="button primary" href="#programs">Explore programs <span aria-hidden="true">↗</span></a>
+            <a class="button secondary" href="#approach">See how it works <span aria-hidden="true">↓</span></a>
+          </div>
+          <div class="credibility"><span class="cred-icon" aria-hidden="true">★</span><span><strong>Learn from a Guinness World Record memory trainer</strong><br/>Methods made practical for everyday studying.</span></div>
+        </div>
+        <div class="hero-art" aria-label="Illustration of a learning journey from understanding to confident recall" role="img">
+          <div class="art-orbit orbit-one"></div><div class="art-orbit orbit-two"></div>
+          <div class="art-label label-one"><span>01</span> Understand</div>
+          <div class="art-label label-two"><span>02</span> Connect</div>
+          <div class="art-label label-three"><span>03</span> Recall</div>
+          <div class="art-center">
+            <div class="art-star">✦</div>
+            <div class="brain-lines" aria-hidden="true"><span></span><span></span><span></span></div>
+            <strong>Your mind.<br/>More capable.</strong><small>Build better learning habits</small>
+          </div>
+          <span class="orbit-dot dot-one"></span><span class="orbit-dot dot-two"></span>
+          <div class="art-bottom"><span>LEARNING IS A SKILL</span><span>↗</span></div>
+        </div>
+      </div>
+      <div class="container benefits">
+        <div><span class="benefit-icon">◎</span><strong>Understand</strong><span>Make ideas easier to grasp</span></div>
+        <div><span class="benefit-icon">✳</span><strong>Remember</strong><span>Use meaningful connections</span></div>
+        <div><span class="benefit-icon">↗</span><strong>Recall</strong><span>Practise retrieving knowledge</span></div>
+      </div>
+    </section>
+
+    <section class="section approach" id="approach">
+      <div class="container">
+        <div class="section-heading split"><div><div class="kicker">THE BRAINO DAD METHOD</div><h2>Less passive reading.<br/><em>More active learning.</em></h2></div><p>We combine memorable techniques with guided practice. Instead of measuring study time alone, focus on what you can explain and retrieve.</p></div>
+        <div class="steps">
+          <article class="step"><div class="step-head"><span>01</span><span class="step-symbol">◇</span></div><h3>Make it make sense</h3><p>Break complex information into clear, manageable ideas before trying to memorise it.</p></article>
+          <article class="step"><div class="step-head"><span>02</span><span class="step-symbol">✣</span></div><h3>Create strong connections</h3><p>Use visualisation, association and other memory techniques to organise what you learn.</p></article>
+          <article class="step"><div class="step-head"><span>03</span><span class="step-symbol">↗</span></div><h3>Practise real recall</h3><p>Test what you remember, revisit gaps, and build a more reliable study routine.</p></article>
+        </div>
+      </div>
+    </section>
+
+    <section class="section programs" id="programs">
+      <div class="container">
+        <div class="section-heading"><div class="kicker">WAYS TO LEARN</div><h2>Find your next step.</h2><p>Practical learning experiences for students, parents, and lifelong learners.</p></div>
+        <div class="program-grid">
+          <article class="program featured">
+            <div class="program-top"><span class="tag">FOUNDATION</span><span class="program-glyph">✺</span></div>
+            <h3>Memory Training</h3><p>Discover techniques for remembering lists, definitions, facts, and other information with more structure and less guesswork.</p>
+            <div class="chips"><span>Associations</span><span>Visual memory</span><span>Recall practice</span></div>
+            <a href={mail}>Ask about memory training <span aria-hidden="true">↗</span></a>
+          </article>
+          <article class="program">
+            <div class="program-top"><span class="tag">LEARNING HABITS</span><span class="program-glyph">▤</span></div>
+            <h3>Smarter Study Skills</h3><p>Explore how to plan learning, understand difficult topics, revise effectively, and check what has actually stayed with you.</p>
+            <div class="chips"><span>Revision</span><span>Focus</span><span>Active recall</span></div>
+            <a href={mail}>Enquire about study skills <span aria-hidden="true">↗</span></a>
+          </article>
+          <article class="program">
+            <div class="program-top"><span class="tag">FOR FAMILIES</span><span class="program-glyph">◈</span></div>
+            <h3>Parent & Student Workshops</h3><p>Learn ways to make studying more effective and discuss practical study routines that work beyond a single class.</p>
+            <div class="chips"><span>Guidance</span><span>Practice</span><span>Consistency</span></div>
+            <a href={mail}>Ask about workshops <span aria-hidden="true">↗</span></a>
+          </article>
+        </div>
+        <p class="program-note">Program schedules, pricing, and availability are shared on enquiry. No checkout is connected to this homepage yet.</p>
+      </div>
+    </section>
+
+    <section class="section about" id="about">
+      <div class="container about-layout">
+        <div class="about-visual"><div class="visual-ring"></div><div class="award">★</div><span class="about-pill">MEMORY IS TRAINABLE</span><div class="visual-caption">Small techniques.<br/>Meaningful progress.</div></div>
+        <div class="about-text"><div class="kicker">ABOUT BRAINO DAD</div><h2>Built around one belief: <em>better learning can be taught.</em></h2><p>BrainoDad brings memory techniques and study-skills coaching together in practical, approachable learning experiences.</p><p>Founded by Aravind Pasupathy, a Guinness World Record memory trainer, BrainoDad focuses on helping learners practise—not just listen.</p><a class="text-link" href="#contact">Connect with BrainoDad <span aria-hidden="true">↗</span></a></div>
+      </div>
+    </section>
+
+    <section class="section contact" id="contact">
+      <div class="container contact-panel"><div><div class="kicker light">READY TO START?</div><h2>Let's make learning<br/><em>feel possible.</em></h2><p>Have a question about a class, workshop, or learning program? Reach out and we'll help you find the right starting point.</p></div><div class="contact-action"><a class="button light-button" href={mail}>Email BrainoDad <span aria-hidden="true">↗</span></a><span>aravind@brainodad.com</span></div></div>
+    </section>
+  </main>
+
+  <footer><div class="container footer-inner"><a class="brand footer-brand" href="/" aria-label="BrainoDad home"><span class="brand-mark" aria-hidden="true">B<span>✦</span></span><span>Braino<span class="brand-accent">Dad</span><small>LEARN SMARTER</small></span></a><div><span>© {new Date().getFullYear()} BrainoDad. All rights reserved.</span><a href="mailto:aravind@brainodad.com">Contact</a></div></div></footer>
 </Layout>
+
+<style is:global>
+  :root{font-family:Inter,ui-sans-serif,system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;color:#18253e;background:#fffcf7;font-synthesis:none}
+  *,*:before,*:after{box-sizing:border-box}
+  html{scroll-behavior:smooth}body{margin:0}a{color:inherit;text-decoration:none}button{font:inherit}
+  .container{max-width:1180px;padding:0 28px;margin:auto}.skip-link{position:absolute;top:-100px;left:15px;background:white;padding:12px;z-index:99}.skip-link:focus{top:12px}
+  .site-header{height:84px;background:#fffdf8;border-bottom:1px solid #e8e6df;position:relative;z-index:2}.nav{display:flex;justify-content:space-between;align-items:center;height:100%;gap:24px}.brand{display:inline-flex;align-items:center;gap:10px;font-size:24px;font-weight:850;letter-spacing:-1.3px;white-space:nowrap}.brand-mark{position:relative;display:inline-grid;place-items:center;background:#182645;color:#fff9eb;width:43px;height:43px;border-radius:14px;font-size:29px;font-weight:850;letter-spacing:-3px}.brand-mark span{position:absolute;font-size:13px;color:#ffc274;right:5px;top:0}.brand-accent{color:#dc7657}.brand small{display:block;font-size:9px;letter-spacing:2.1px;margin-top:-4px;color:#778095}.navlinks{display:flex;gap:34px;font-size:14px;color:#47546a;font-weight:600}.navlinks a:hover,.text-link:hover{color:#b85d41}.nav-cta{background:#192746;color:white;padding:13px 19px;border-radius:10px;font-size:13px;font-weight:750}.nav-cta span{margin-left:16px}
+  .hero{background:radial-gradient(ellipse at 85% 18%,#f7e6cd 0%,transparent 42%),linear-gradient(180deg,#fffaf0 0%,#f7f7f2 100%);overflow:hidden;padding-top:79px}.hero-layout{display:grid;grid-template-columns:1.07fr .93fr;align-items:center;gap:46px}.eyebrow,.kicker{font-size:11px;letter-spacing:2.2px;font-weight:850;color:#b56c4a}.eyebrow{display:inline-flex;gap:9px;align-items:center;background:#fff1e0;border:1px solid #f3dac5;border-radius:50px;padding:10px 14px}.spark{color:#e3a348;font-size:18px}.hero h1{font-weight:850;font-size:clamp(42px,4.55vw,70px);letter-spacing:-3.8px;line-height:1.095;margin:29px 0 23px;max-width:700px}.hero h1 em,.section h2 em,.contact h2 em{font-style:normal;color:#d47757}.hero-lead{font-size:17px;line-height:1.84;color:#526176;max-width:560px;margin:0 0 30px}.actions{display:flex;gap:13px;flex-wrap:wrap}.button{min-height:50px;padding:15px 22px;display:inline-flex;gap:20px;align-items:center;justify-content:center;font-size:14px;font-weight:800;border-radius:10px;transition:transform .2s,box-shadow .2s}.button:hover{transform:translateY(-2px)}.primary{background:#1c2c4e;color:white;box-shadow:0 10px 26px #18274629}.secondary{border:1px solid #d4d9df;color:#293b55;background:#fffdfb}.credibility{margin-top:35px;display:flex;gap:12px;align-items:center;font-size:12px;line-height:1.65;color:#68758a}.credibility strong{font-size:13px;color:#263856}.cred-icon{width:37px;height:37px;display:grid;place-items:center;border-radius:50%;background:#f5e6c8;color:#ad7734;font-size:20px}
+  .hero-art{min-height:490px;max-width:520px;width:100%;margin:auto;position:relative;display:flex;align-items:center;justify-content:center;isolation:isolate}.hero-art:before{content:"";position:absolute;inset:5% 8%;border-radius:50%;background:radial-gradient(circle,#f9e5ca 0%,#e4dfd2 63%,transparent 64%);z-index:-2}.art-orbit{position:absolute;border:1px solid #d1c9b6;border-radius:50%;transform:rotate(-16deg);z-index:-1}.orbit-one{width:96%;height:67%}.orbit-two{width:74%;height:89%;transform:rotate(28deg)}.art-center{width:265px;height:290px;box-shadow:0 26px 50px #273b5722;background:#1d3157;color:white;border:1px solid #8190a7;border-radius:130px 130px 100px 100px;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center}.art-star{font-size:33px;color:#ffcb77}.brain-lines{display:flex;gap:7px;align-items:end;height:36px;margin:13px 0}.brain-lines span{background:#ebaf73;width:13px;height:20px;border-radius:10px}.brain-lines span:nth-child(2){height:32px;background:#ffdb9c}.brain-lines span:nth-child(3){height:25px}.art-center strong{font-size:29px;letter-spacing:-1px;line-height:1.25}.art-center small{margin-top:14px;font-size:10px;color:#bdccdc;letter-spacing:.5px}.art-label{position:absolute;background:#fffefa;padding:13px 17px;display:flex;align-items:center;gap:11px;border-radius:12px;box-shadow:0 12px 25px #19264512;font-size:12px;font-weight:750}.art-label span{color:#c57e55;font-weight:900}.label-one{top:13%;left:0}.label-two{right:-2%;top:35%}.label-three{bottom:20%;left:-3%}.orbit-dot{position:absolute;width:11px;height:11px;border-radius:50%;background:#dc885d}.dot-one{top:16%;right:18%}.dot-two{bottom:14%;right:24%;background:#eab85b}.art-bottom{position:absolute;right:6%;bottom:5%;display:flex;gap:15px;font-size:10px;letter-spacing:1.5px;font-weight:900;color:#7e7569}
+  .benefits{display:grid;grid-template-columns:repeat(3,1fr);gap:1px;background:#e2e4df;border-radius:14px 14px 0 0;overflow:hidden;margin-top:75px}.benefits>div{background:#fffefa;display:grid;grid-template-columns:45px 1fr;column-gap:10px;align-items:center;padding:27px}.benefit-icon{grid-row:span 2;font-size:27px;color:#d08d62}.benefits strong{font-size:15px}.benefits div>span:last-child{font-size:12px;color:#7a8290;margin-top:4px}
+  .section{padding:110px 0}.section-heading{max-width:750px;margin-bottom:40px}.section h2{font-size:clamp(35px,3.5vw,51px);letter-spacing:-2.4px;line-height:1.15;margin:15px 0 14px}.section-heading p,.about p{color:#687487;line-height:1.85;font-size:16px}.split{display:flex;justify-content:space-between;gap:35px;align-items:end;max-width:none}.split>p{max-width:350px;margin:0 0 10px}.steps{display:grid;grid-template-columns:repeat(3,1fr);gap:18px}.step{border:1px solid #e5e8e7;border-radius:18px;padding:31px;background:#fff;min-height:244px}.step-head{display:flex;justify-content:space-between;align-items:start;color:#c78d68;font-weight:900;font-size:13px}.step-symbol{font-size:37px;color:#b6c1c8}.step h3{font-size:21px;letter-spacing:-.8px;margin:31px 0 12px}.step p{font-size:14px;line-height:1.85;color:#6e7b8b;margin:0}
+  .programs{background:#f1f3ef}.program-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:17px}.program{display:flex;flex-direction:column;min-height:380px;background:white;border:1px solid #e4e8e5;border-radius:18px;padding:30px}.program.featured{background:#1c2e50;color:#fff;border-color:#1c2e50}.program-top{display:flex;justify-content:space-between;align-items:center}.tag{font-size:10px;letter-spacing:1.2px;font-weight:900;color:#b97a50;background:#fdf1df;border-radius:20px;padding:9px 12px}.featured .tag{color:#f5d4a8;background:#334768}.program-glyph{font-size:42px;color:#cda072}.program h3{font-size:27px;letter-spacing:-1.1px;margin:33px 0 12px}.program p{font-size:14px;line-height:1.85;color:#657388;margin:0 0 25px}.featured p{color:#cdd5e2}.chips{display:flex;flex-wrap:wrap;gap:7px;margin-top:auto;margin-bottom:30px}.chips span{border:1px solid #e0e6e9;padding:6px 9px;border-radius:30px;font-size:10px;font-weight:650;color:#667687}.featured .chips span{border-color:#5c6c86;color:#d6dfea}.program a{font-weight:800;font-size:13px;display:flex;justify-content:space-between;gap:8px;border-top:1px solid #e2e8e8;padding-top:21px}.featured a{border-color:#4b5c78}.program-note{color:#7b8591;font-size:12px;margin-top:20px}
+  .about-layout{display:grid;grid-template-columns:1fr 1fr;gap:95px;align-items:center}.about-visual{position:relative;min-height:420px;border-radius:22px;background:#eddfc9;overflow:hidden;display:flex;align-items:center;justify-content:center;flex-direction:column}.visual-ring{position:absolute;border:1px solid #bba78b;width:430px;height:430px;border-radius:50%}.visual-ring:before,.visual-ring:after{content:"";position:absolute;border:1px solid #bba78b;border-radius:50%;inset:30px}.visual-ring:after{inset:65px}.award{position:relative;background:#f6eddd;width:145px;height:145px;border-radius:50%;display:grid;place-items:center;font-size:74px;color:#ba864d;box-shadow:0 14px 40px #7e633529}.about-pill{position:relative;background:#fffaf0;padding:11px 18px;border-radius:50px;margin-top:24px;font-size:11px;font-weight:900;letter-spacing:1px}.visual-caption{position:absolute;bottom:29px;left:31px;color:#715d43;font-size:13px;line-height:1.4;font-weight:800}.about-text p{max-width:490px}.text-link{font-size:14px;display:inline-flex;gap:22px;color:#c27758;font-weight:800;border-bottom:1px solid #e7a68b;padding-bottom:9px;margin-top:15px}
+  .contact{padding-top:30px;padding-bottom:75px}.contact-panel{background:#1c2d4d;border-radius:22px;color:#fff;padding:70px 76px;display:flex;justify-content:space-between;align-items:end;gap:35px;background-image:radial-gradient(circle at 95% 0%,#40577c 0%,transparent 42%)}.kicker.light{color:#e9b07c}.contact h2{font-size:clamp(36px,4vw,58px);margin:14px 0 16px}.contact h2 em{color:#e9b88c}.contact p{line-height:1.8;font-size:15px;color:#c6d0df;max-width:510px}.contact-action{display:flex;flex-direction:column;align-items:flex-start;gap:14px;flex-shrink:0}.light-button{background:#fffaf1;color:#1e304f}.contact-action>span{font-size:12px;color:#b5c1d1}
+  footer{background:#fffefa;border-top:1px solid #eee9e1}.footer-inner{min-height:130px;display:flex;justify-content:space-between;align-items:center;gap:20px}.footer-inner>div{display:flex;gap:28px;color:#788494;font-size:12px}.footer-inner a:last-child:hover{text-decoration:underline}
+  @media(max-width:950px){.hero-layout{grid-template-columns:1fr;gap:20px}.hero-copy{max-width:730px}.hero-art{max-width:500px}.about-layout{gap:38px}.contact-panel{padding:50px}.navlinks{gap:15px}}
+  @media(max-width:700px){.container{padding:0 20px}.site-header{height:73px}.brand{font-size:21px}.brand-mark{width:38px;height:38px;font-size:25px}.navlinks{display:none}.nav-cta{padding:12px;font-size:12px}.nav-cta span{margin-left:3px}.hero{padding-top:52px}.hero h1{font-size:clamp(41px,10vw,60px);letter-spacing:-2.5px}.hero-lead{font-size:15px}.hero-art{min-height:400px}.art-center{width:220px;height:250px}.art-center strong{font-size:25px}.art-label{padding:10px;font-size:10px}.label-one{left:1%;top:11%}.label-two{right:-1%}.label-three{left:1%;bottom:18%}.benefits{grid-template-columns:1fr;margin-top:25px;border-radius:12px}.benefits>div{padding:17px}.section{padding:75px 0}.section h2{letter-spacing:-1.7px}.split{display:block}.split>p{max-width:550px;margin-top:18px}.steps,.program-grid{grid-template-columns:1fr}.step{min-height:0}.step h3{margin-top:19px}.program{min-height:320px}.about-layout{grid-template-columns:1fr;gap:37px}.about-visual{min-height:350px}.contact{padding:20px 0 50px}.contact-panel{padding:38px 26px;display:block}.contact-action{margin-top:24px}.footer-inner{padding-top:24px;padding-bottom:24px;align-items:start;flex-direction:column}.footer-inner>div{flex-wrap:wrap;gap:12px}.hero-art{margin-top:10px}}
+  @media(prefers-reduced-motion:reduce){html{scroll-behavior:auto}.button{transition:none}}
+</style>

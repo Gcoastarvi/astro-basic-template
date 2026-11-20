@@ -1,46 +1,42 @@
-# Astro Starter Kit: Basics
+# BrainoDad website
 
-```sh
-npm create astro@latest -- --template basics
+Lightweight Astro marketing website for BrainoDad, hosted on Railway.
+
+## Local development
+
+```bash
+npm ci
+npm run dev
 ```
 
-> 🧑‍🚀 **Seasoned astronaut?** Delete this file. Have fun!
+Open the URL printed by Astro (normally http://localhost:4321).
 
-## 🚀 Project Structure
+## Production build
 
-Inside of your Astro project, you'll see the following folders and files:
-
-```text
-/
-├── public/
-│   └── favicon.svg
-├── src
-│   ├── assets
-│   │   └── astro.svg
-│   ├── components
-│   │   └── Welcome.astro
-│   ├── layouts
-│   │   └── Layout.astro
-│   └── pages
-│       └── index.astro
-└── package.json
+```bash
+npm run build
+npm run preview
 ```
 
-To learn more about the folder structure of an Astro project, refer to [our guide on project structure](https://docs.astro.build/en/basics/project-structure/).
+## Deployment and safety
 
-## 🧞 Commands
+- `main` deploys to the production Astro service for `brainodad.com`.
+- Build and visually review changes from a feature branch and PR before merging.
+- Production has two custom domains: `brainodad.com` and `www.brainodad.com`.
+- Do not change Cloudflare or Bluehost mail DNS records for a homepage content update.
+- The homepage contact action opens an email to `aravind@brainodad.com`.
+- Payment/checkout, analytics, testimonials, and live class schedules are **not** connected in the first draft.
 
-All commands are run from the root of the project, from a terminal:
+## Homepage contents
 
-| Command                   | Action                                           |
-| :------------------------ | :----------------------------------------------- |
-| `npm install`             | Installs dependencies                            |
-| `npm run dev`             | Starts local dev server at `localhost:4321`      |
-| `npm run build`           | Build your production site to `./dist/`          |
-| `npm run preview`         | Preview your build locally, before deploying     |
-| `npm run astro ...`       | Run CLI commands like `astro add`, `astro check` |
-| `npm run astro -- --help` | Get help using the Astro CLI                     |
+- `src/pages/index.astro` — landing page content and styles
+- `src/layouts/Layout.astro` — page metadata and HTML layout
+- `public/favicon.svg` — branded mark
 
-## 👀 Want to learn more?
+## Review checklist
 
-Feel free to check [our documentation](https://docs.astro.build) or jump into our [Discord server](https://astro.build/chat).
+1. Confirm `npm run build` passes.
+2. Check desktop and narrow mobile layouts in the preview.
+3. Check hero, navigation, program cards, and enquiry link.
+4. Confirm all brand, offer, and credential wording.
+5. Merge and release only with separate owner approval.
