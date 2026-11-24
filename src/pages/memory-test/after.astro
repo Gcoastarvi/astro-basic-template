@@ -1,0 +1,15 @@
+---
+import MemoryTestLayout from '../../layouts/MemoryTestLayout.astro';
+// Backend address and the ₹99 join link. Both can be changed with Railway variables without touching code.
+const api = import.meta.env.PUBLIC_MT_API || 'https://api.fluencyjet.com/api/memory-test';
+const join = import.meta.env.PUBLIC_MT_JOIN_URL || 'https://rzp.io/rzp/lTcyWUxH';
+---
+<MemoryTestLayout title="After-class Memory Test | BrainoDad" path="/memory-test/after" noindex={true}>
+  <canvas id="confetti" aria-hidden="true"></canvas>
+  <main id="app" aria-live="polite" data-mode="after" data-api={api} data-join={join}>
+    <noscript><p style="padding:20px">Please turn on JavaScript to take the test.</p></noscript>
+  </main>
+  <script>
+    import '../../scripts/memory-test/app.js';
+  </script>
+</MemoryTestLayout>
