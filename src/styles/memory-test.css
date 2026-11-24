@@ -148,3 +148,17 @@ details ul{margin:10px 0 0;padding-left:18px}
 /* "Save it for tonight" time choices */
 .slotbtn{min-height:52px;border-radius:12px;border:1.5px solid var(--line);background:var(--panel);color:var(--text);font-family:var(--body);font-weight:500;font-size:1rem;cursor:pointer;padding:6px 8px}
 .slotbtn.on{border-color:var(--gold);background:var(--panel2);color:var(--gold);font-weight:700}
+
+/* ₹99 class page (agreed copy, 24 Nov 2026) */
+.baBox{position:relative;display:flex;flex-direction:column;align-items:center;background:var(--panel2);border-radius:14px;padding:8px 18px;min-width:96px}
+.baBox small{font-family:var(--display);font-size:.75rem;letter-spacing:.08em;color:var(--muted)}
+.baBox.lockd{border:2px dashed var(--gold)}
+.baBox i{position:absolute;top:-10px;right:-10px;font-style:normal;font-size:1.2rem}
+.teacher{display:flex;gap:14px;align-items:center}
+.teacher img{width:118px;height:auto;border-radius:12px;flex:none}
+.teacher div{display:flex;flex-direction:column;gap:2px}
+.teacher b{font-family:var(--display);font-size:1.2rem}
+.teacher span{color:var(--muted);font-size:.92rem}
+.vid{position:relative;padding-top:56.25%;border-radius:12px;overflow:hidden;background:#000}
+.vid iframe{position:absolute;inset:0;width:100%;height:100%;border:0}
+.faq p{font-size:.95rem}

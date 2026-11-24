@@ -542,31 +542,71 @@ function wireJoin() {
     api.event({ attemptId: store.beforeId || null, anonId: store.anon, type: "join_click", attrib });
   }));
 }
-/* Step 2: the invitation to the Rs 99 live class (this is the goal of the free test) */
+/* Step 2: the ₹99 live-class page. One action only: join the class.
+   The idea: today's score is only the "before"; the "after" score unlocks only in the live class.
+   School levels (Class 6–8, 9–12) speak to the parent, who pays. Final copy agreed 24 Nov 2026. */
 function offer(returning) {
-  const rec = store.before; const L = levelOf(rec.total); const sw = strongWeak(rec.scores);
+  const rec = store.before; const sw = strongWeak(rec.scores);
+  const school = SCHOOL_TRACKS.includes(rec.lvl);
+  const your = school ? "Your child's" : "Your";
+  const btnText = school ? "Book my child's seat · ₹99" : "Join the live class · ₹99";
+  const joinBig = (id) => `<a class="btn" data-joinbtn id="${id}" href="${esc(CFG.joinUrl)}" target="_blank" rel="noopener">${btnText}</a>`;
+  const topLine = store.leadSent
+    ? `<div class="callout"><b>${CFG.waMode === "auto" ? "Your full report is on its way to WhatsApp." : "Your full report will reach your WhatsApp within a few hours."}</b></div>`
+    : `<button class="btn ghost" id="getrep">Get my full report on WhatsApp</button>`;
   show(`
   <div class="stack">
-    ${store.leadSent ? `<div class="callout"><b>${CFG.waMode === "auto" ? "Your full report is on its way to WhatsApp." : "Your full report will reach your WhatsApp within a few hours."}</b></div>${chatBtn()}` : ""}
-    ${returning ? `<span class="brand">Welcome back${store.name ? ", " + esc(store.name) : ""}</span>` : `<span class="brand">Your next step</span>`}
-    <h2>${L.name === "Memory Genius" ? "Make your strong memory exam-proof" : "Raise your level in one live class"}</h2>
-    <p>Your result shows the problem every student faces: you study hard, but a big part fades before the exam. In this 2-hour live class, Aravind Pasupathy shows you the methods to fix it, starting with your weakest area, <b>${esc(sw.weak.name)}</b>.</p>
-    <div class="card offer stack">
-      <span class="brand">Live class · ${esc(CFG.classLabel)}</span>
-      <h2>Study Memory Masterclass</h2>
-      <ul class="ticks">
-        <li>Methods to remember key terms, dates and chapters</li>
-        <li>How to revise so it lasts until exam day</li>
-        <li><b>Your free after-class retest</b>: see exactly how much your score rises</li>
-      </ul>
-      ${joinBtn()}
-      <p class="small center">Only students in the class get the after-class retest.</p>
+    ${topLine}
+    ${returning ? `<span class="brand">Welcome back${store.name ? ", " + esc(store.name) : ""}</span>` : ""}
+    <h1>${your} "before" score: ${rec.total} / 100</h1>
+    <p>${school
+      ? "This is the starting point. In one 2-hour live class, Aravind Pasupathy teaches your child the memory methods. Then your child takes the test again, and you see how much the score goes up."
+      : "This is your starting point. In one 2-hour live class, Aravind Pasupathy teaches you the memory methods. Then you take the test again and see how much your score goes up."}</p>
+    <div class="card stack center">
+      <div class="ba"><div class="baBox"><small>BEFORE</small><span class="b">${rec.total}</span></div><span class="arrow">→</span><div class="baBox lockd"><small>AFTER</small><span class="a">?</span><i aria-hidden="true">🔒</i></div></div>
+      <p class="small"><b>${your} "after" score unlocks only in the live class.</b></p>
     </div>
-    ${store.leadSent ? "" : `<button class="btn ghost" id="getrep">Get my full report on WhatsApp</button>`}
-    ${shareBlock(true)}
+    <div class="callout"><p>${your} weakest area today: <b>${esc(sw.weak.name)}</b>. In the class ${school ? "your child" : "you"} will learn <b>${esc(sw.weak.fix)}</b> to fix exactly this.</p></div>
+    <div class="card offer stack">
+      <span class="brand">Live class · ${esc(CFG.classLabel)} · On Zoom · In Tamil</span>
+      <h2>Study Memory Masterclass · ₹99</h2>
+      <ul class="ticks">
+        <li>2-hour <b>live</b> class with Aravind, in Tamil (not a recording)</li>
+        <li>Methods for key terms, dates, numbers and whole chapters</li>
+        <li>${your} <b>after-class retest</b> and before/after report on WhatsApp</li>
+        <li>${school ? "You can sit with your child and watch the class" : "Ask your doubts live"}</li>
+      </ul>
+      ${joinBig("join1")}
+      ${school ? `<p class="small center"><b>Your child studies hard. This class shows them how to remember it on exam day.</b></p>` : ""}
+      <p class="small center">Pay with the same WhatsApp number. Your class link comes on WhatsApp.</p>
+    </div>
+    <div class="card teacher">
+      <img src="/memory-test/aravind-guinness.jpg" alt="Aravind Pasupathy holding his Guinness World Records certificate" width="560" height="700" loading="lazy">
+      <div><b>Aravind Pasupathy</b><span>Guinness World Record Holder</span><span>Teaching since 2011</span><span>35,000+ students trained</span></div>
+    </div>
+    <div class="card stack">
+      <span class="brand">Real result from last week's class</span>
+      <p><b>Mugilan</b>, preparing for UPSC</p>
+      <div class="ba"><span class="b">62</span><span class="arrow">→</span><span class="a">90</span></div>
+      <p class="center small muted">+28 points after one class</p>
+    </div>
+    <div class="card stack">
+      <span class="brand">What a parent says</span>
+      <div class="vid"><iframe src="https://player.vimeo.com/video/905848237?dnt=1&title=0&byline=0&portrait=0" loading="lazy" allow="fullscreen; picture-in-picture" allowfullscreen title="Parent testimonial"></iframe></div>
+      <p><i>"I can see a complete change in my 12th-grade daughter's study habits, and it has made us very happy. Now I don't need to ask her to study. She studies on her own, and it still surprises me."</i></p>
+      <p class="small muted">Parent of a Class 12 student</p>
+    </div>
+    <div class="card stack faq">
+      <h3>Quick questions</h3>
+      <p><b>Is it live?</b><br>Yes, on Zoom, and you can ask questions.</p>
+      <p><b>Which language?</b><br>Tamil.</p>
+      <p><b>Can't come on Sunday?</b><br>Message us on WhatsApp and we'll move you to the next week's class. Your ₹99 covers it.</p>
+      <p><b>Is payment safe?</b><br>Yes, through Razorpay, with a receipt.</p>
+    </div>
+    ${joinBig("join2")}
+    <p class="note">${esc(CFG.classLabel)}</p>
   </div>`);
   wireJoin(); if ($("getrep")) $("getrep").onclick = () => teaser(rec, false);
-  wireShare(rec, null);
 }
 /* The full report: opened from the personal link sent on WhatsApp (/memory-test/report?t=...) */
 function fullReport(rec) {
