@@ -144,3 +144,7 @@ details ul{margin:10px 0 0;padding-left:18px}
 .fade{animation:fade .35s ease both}
 @keyframes fade{from{opacity:.001;transform:translateY(8px)}to{opacity:1;transform:none}}
 @media (prefers-reduced-motion:reduce){.fade{animation:none}.timer i{transition:none}}
+
+/* "Save it for tonight" time choices */
+.slotbtn{min-height:52px;border-radius:12px;border:1.5px solid var(--line);background:var(--panel);color:var(--text);font-family:var(--body);font-weight:500;font-size:1rem;cursor:pointer;padding:6px 8px}
+.slotbtn.on{border-color:var(--gold);background:var(--panel2);color:var(--gold);font-weight:700}

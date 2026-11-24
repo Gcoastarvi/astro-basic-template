@@ -115,6 +115,7 @@ function home() {
   show(`
   <div class="stack">
     <span class="brand">BrainoDad · Exam Memory Test</span>
+    ${store.savedKey ? `<div class="callout"><b>Welcome back! Your child's test is ready.</b><br><span class="small">Give the phone to your child and tap "Start my free test" below. The full report will come to your WhatsApp.</span></div>` : ""}
     <h1>Free Study Memory Test</h1>
     <p class="muted">How much of what you study will you remember on exam day? 5 short tasks built like real study: key terms, timelines, facts and figures, a textbook paragraph and a surprise recall.</p>
     <div class="wabox">${WA_ICON}<div><b>Your full report comes on WhatsApp</b><p>You see your memory level on screen. Your score out of 100, 5 skill scores and weakest area are sent free to your WhatsApp number at the end.</p></div></div>
@@ -133,6 +134,7 @@ function home() {
     <p class="wanote">${WA_ICON.replace('class="waic"', 'class="waic"')}<span>Keep your WhatsApp number ready for your full report.</span></p>
     <button class="btn" id="go">Start my free test</button>
     <p id="gomsg" class="warn center" aria-live="polite"></p>
+    ${store.savedKey ? "" : `<button class="btn ghost" id="later" ${pick === "comp" ? 'style="display:none"' : ""}>My child isn't with me now · Save it for tonight</button>`}
     <div class="stack" style="gap:8px">
       ${PARTS.map((p, i) => `<div class="lp"><i>${i + 1}</i><div><b>${esc(p.name)}</b><small>${esc(p.exam)}</small></div></div>`).join("")}
     </div>
@@ -141,11 +143,84 @@ function home() {
   document.querySelectorAll(".track").forEach((b) => (b.onclick = () => {
     pick = b.dataset.k;
     document.querySelectorAll(".track").forEach((x) => { x.classList.toggle("on", x === b); x.setAttribute("aria-checked", x === b); }); $("gomsg").textContent = "";
+    if ($("later")) $("later").style.display = pick === "comp" ? "none" : "";
   }));
+  if ($("later")) $("later").onclick = () => saveForLater(pick === "ms" || pick === "hs" ? pick : "");
   $("go").onclick = () => {
     if (!pick) { $("gomsg").textContent = "Please tap your level above first."; $("lvlh").scrollIntoView({ behavior: reduced ? "auto" : "smooth", block: "center" }); return; }
     store.name = $("nm").value.trim().slice(0, 20); store.lvl = pick; save(store); newRun("before", pick); intro(0);
   };
+}
+
+/* ---------- "My child isn't with me now – save it for tonight" (school levels only) ---------- */
+function slotChoices() {
+  const h = Number(new Intl.DateTimeFormat("en-GB", { timeZone: "Asia/Kolkata", hour: "numeric", hourCycle: "h23" }).format(new Date()));
+  const list = [];
+  if (h < 17) list.push(["t18", "Today 6 PM"]);
+  if (h < 19) list.push(["t20", "Today 8 PM"]);
+  list.push(["tm19", "Tomorrow 7 PM"], ["sat10", "Saturday 10 AM"]);
+  return list;
+}
+function saveForLater(lvl) {
+  let track = lvl, slot = "";
+  const consentText = "I am the parent or guardian. Send the test reminder and my child's report to this number.";
+  show(`
+  <div class="stack">
+    <span class="brand">BrainoDad · Exam Memory Test</span>
+    <h2>Save the test for tonight</h2>
+    <p class="muted">Your child takes the 7-minute test when they are home, on your phone. We send you a reminder on WhatsApp with a personal link, and your child's full report comes to you.</p>
+    <h3>Your child's class</h3>
+    <div class="stack" style="gap:8px" role="radiogroup" aria-label="Child's class">
+      ${["ms", "hs"].map((k) => `<button class="track${track === k ? " on" : ""}" data-k="${k}" role="radio" aria-checked="${track === k}"><b>${esc(LEVELS_CONTENT[k].label)}</b><span>${esc(LEVELS_CONTENT[k].sub)}</span></button>`).join("")}
+    </div>
+    <h3>When is your child free?</h3>
+    <div class="pick" role="radiogroup" aria-label="Reminder time">
+      ${slotChoices().map(([k, l]) => `<button type="button" class="slotbtn" data-s="${k}" role="radio" aria-checked="false">${esc(l)}</button>`).join("")}
+    </div>
+    <form class="card stack" id="sv">
+      <label for="sph">Your WhatsApp number</label>
+      <input id="sph" type="tel" inputmode="numeric" autocomplete="tel" placeholder="98765 43210" maxlength="14" value="${esc(store.phone || "")}">
+      <label class="check"><input type="checkbox" id="scons"> ${consentText}</label>
+      <button class="btn teal" id="svgo">Save and remind me</button>
+      <p id="svm" class="warn" aria-live="polite"></p>
+    </form>
+    <button class="linkbtn" id="back">My child is here · Start the test now</button>
+  </div>`);
+  document.querySelectorAll(".track").forEach((b) => (b.onclick = () => {
+    track = b.dataset.k; document.querySelectorAll(".track").forEach((x) => { x.classList.toggle("on", x === b); x.setAttribute("aria-checked", x === b); });
+  }));
+  document.querySelectorAll(".slotbtn").forEach((b) => (b.onclick = () => {
+    slot = b.dataset.s; document.querySelectorAll(".slotbtn").forEach((x) => { x.classList.toggle("on", x === b); x.setAttribute("aria-checked", x === b); });
+  }));
+  $("back").onclick = () => home();
+  $("sv").onsubmit = async (e) => {
+    e.preventDefault(); const m = $("svm"); const d = cleanPhone($("sph").value);
+    if (!track) { m.textContent = "Please tap your child's class."; return; }
+    if (!slot) { m.textContent = "Please tap when your child is free."; return; }
+    if (!d) { m.textContent = "Please enter a 10-digit WhatsApp number."; return; }
+    if (!$("scons").checked) { m.textContent = "Please tick the box so we can send the reminder."; return; }
+    const btn = $("svgo"); btn.disabled = true; btn.textContent = "Saving…";
+    const r = await api.save({ phone: d, consent: true, consentText, track, slot, anonId: store.anon, attrib });
+    btn.disabled = false; btn.textContent = "Save and remind me";
+    if (!r.ok || !r.data.token) { m.textContent = "We couldn't reach our server. Check your internet and tap the button again."; return; }
+    store.savedKey = r.data.token; store.lvl = track; store.phone = d; save(store);
+    savedDone(r.data.remindLabel || "");
+  };
+}
+function savedDone(label) {
+  const chat = CFG.waChatNumber ? `<a class="btn teal" href="https://wa.me/91${esc(CFG.waChatNumber)}?text=${encodeURIComponent("Hi! Please send me the memory test reminder.")}" target="_blank" rel="noopener">Say Hi on WhatsApp so the reminder reaches you</a>` : "";
+  show(`
+  <div class="stack">
+    <span class="brand">Saved</span>
+    <h2>Done! We'll remind you ${esc(label)}.</h2>
+    <div class="wabox">${WA_ICON}<div><b>Watch your WhatsApp</b><p>You'll get a message from BrainoDad with your child's personal test link. Just open it and give your phone to your child.</p></div></div>
+    ${chat}
+    <div class="card stack">
+      <p><b>Is your child free now after all?</b></p>
+      <button class="btn" id="now">Start the test now</button>
+    </div>
+  </div>`);
+  $("now").onclick = () => home();
 }
 
 /* ---------- /memory-test/after: opens only with the same WhatsApp number, and only when Aravind switches it on ---------- */
@@ -411,7 +486,12 @@ function teaser(rec, fresh) {
       </div>
       <p class="muted small">Your Exam Memory Score out of 100, all 5 skill scores, your weakest area and the method that fixes it.</p>
     </div>
-    <form class="card stack" id="wa">
+    ${store.savedKey ? `<form class="card stack" id="wa">
+      <h3>Send the full report to your WhatsApp</h3>
+      <p class="muted small">${etaText()} It goes to the number you saved earlier.</p>
+      <button class="btn teal" id="wago">Send my full report</button>
+      <p id="svmsg" class="muted small" aria-live="polite"></p>
+    </form>` : `<form class="card stack" id="wa">
       <h3>Where should we send your full report?</h3>
       <p class="muted small">${etaText()}</p>
       <label for="ph">${school ? "Parent's WhatsApp number" : "Your WhatsApp number"}</label>
@@ -419,16 +499,20 @@ function teaser(rec, fresh) {
       <label class="check"><input type="checkbox" id="cons"> ${consentText}</label>
       <button class="btn teal" id="wago">Send my full report</button>
       <p id="svmsg" class="muted small" aria-live="polite"></p>
-    </form>
+    </form>`}
     <button class="linkbtn" id="skip">Skip for now</button>
   </div>`);
   if (fresh) confetti();
   $("wa").onsubmit = async (e) => {
-    e.preventDefault(); const d = cleanPhone($("ph").value); const m = $("svmsg");
-    if (!d) { m.textContent = "Please enter a 10-digit WhatsApp number."; return; }
-    if (!$("cons").checked) { m.textContent = "Please tick the box so we can send the report."; return; }
+    e.preventDefault(); const m = $("svmsg");
+    const viaSaved = Boolean(store.savedKey);
+    const d = viaSaved ? store.phone || "" : cleanPhone($("ph").value);
+    if (!viaSaved && !d) { m.textContent = "Please enter a 10-digit WhatsApp number."; return; }
+    if (!viaSaved && !$("cons").checked) { m.textContent = "Please tick the box so we can send the report."; return; }
     const btn = $("wago"); btn.disabled = true; btn.textContent = "Sending…";
-    const r = await api.lead({ attemptId: store.beforeId, anonId: store.anon, phone: d, consent: true, consentText, track: rec.lvl, firstName: store.name || "", rec, attrib });
+    const r = await api.lead(viaSaved
+      ? { attemptId: store.beforeId, anonId: store.anon, savedKey: store.savedKey, track: rec.lvl, firstName: store.name || "", rec, attrib }
+      : { attemptId: store.beforeId, anonId: store.anon, phone: d, consent: true, consentText, track: rec.lvl, firstName: store.name || "", rec, attrib });
     btn.disabled = false; btn.textContent = "Send my full report";
     if (!r.ok) { m.textContent = "We couldn't reach our server. Check your internet and tap the button again."; return; }
     store.phone = d; store.leadSent = true; save(store);
@@ -660,6 +744,19 @@ api.config().then((r) => {
   const lab = document.querySelectorAll(".offer .brand");
   lab.forEach((el) => { if (/^Live class/.test(el.textContent)) el.textContent = "Live class · " + CFG.classLabel; });
 });
+async function openSaved(k) {
+  show(`<div class="stack center"><span class="brand">BrainoDad · Exam Memory Test</span><p class="muted">Opening your child's test…</p></div>`);
+  const r = await api.saved(k);
+  if (r.ok && r.data.track && !r.data.done) {
+    // a fresh start for the child on this phone, linked to the parent's saved number
+    const keep = { anon: store.anon };
+    store = Object.assign(keep, { savedKey: k, lvl: r.data.track }); save(store);
+  }
+  history.replaceState(null, "", location.pathname);
+  home();
+}
+const savedParam = new URLSearchParams(location.search).get("k");
 if (MODE === "after") afterGate();
 else if (MODE === "report") reportPage();
+else if (savedParam && /^[A-Za-z0-9_-]{20,64}$/.test(savedParam)) openSaved(savedParam);
 else home();
