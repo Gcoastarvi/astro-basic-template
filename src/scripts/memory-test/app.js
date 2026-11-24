@@ -14,7 +14,9 @@ import { getAttrib, metaIds, pixel, taggedLink } from "./track.js";
 const $app = document.getElementById("app");
 const MODE = $app.dataset.mode || "before"; // before | after | report
 setBase($app.dataset.api);
-const CFG = { joinUrl: $app.dataset.join, classLabel: "This Sunday · 5–7 PM", courseUrl: "", courseLabel: "Join the 21-Day Course · ₹3,500" };
+const CFG = { joinUrl: $app.dataset.join, classLabel: "This Sunday · 5–7 PM", courseUrl: "", courseLabel: "Join the 21-Day Course · ₹3,500", waMode: "manual", waChatNumber: "" };
+/* manual = Aravind sends each report himself, so promise "within a few hours", not "in a minute" */
+const etaText = () => (CFG.waMode === "auto" ? "Free. Arrives in under a minute." : "Free. Sent personally to your WhatsApp within a few hours.");
 const attrib = getAttrib();
 
 function howText(i) {
@@ -411,7 +413,7 @@ function teaser(rec, fresh) {
     </div>
     <form class="card stack" id="wa">
       <h3>Where should we send your full report?</h3>
-      <p class="muted small">Free. Arrives in under a minute.</p>
+      <p class="muted small">${etaText()}</p>
       <label for="ph">${school ? "Parent's WhatsApp number" : "Your WhatsApp number"}</label>
       <input id="ph" type="tel" inputmode="numeric" autocomplete="tel" placeholder="98765 43210" maxlength="14" value="${esc(store.phone || "")}">
       <label class="check"><input type="checkbox" id="cons"> ${consentText}</label>
@@ -435,6 +437,12 @@ function teaser(rec, fresh) {
   };
   $("skip").onclick = () => offer(false);
 }
+/* optional: student says "Hi" first, so the report lands in an open chat */
+function chatBtn() {
+  if (!CFG.waChatNumber) return "";
+  const text = "Hi! Please send my BrainoDad memory test report.";
+  return `<a class="btn teal" data-chatbtn href="https://wa.me/91${esc(CFG.waChatNumber)}?text=${encodeURIComponent(text)}" target="_blank" rel="noopener">Message us on WhatsApp to get it faster</a>`;
+}
 function joinBtn() { return `<a class="btn" data-joinbtn href="${esc(CFG.joinUrl)}" target="_blank" rel="noopener">Join the live class for ₹99</a>`; }
 function wireJoin() {
   document.querySelectorAll("a[data-joinbtn]").forEach((a) => a.addEventListener("click", () => {
@@ -447,7 +455,7 @@ function offer(returning) {
   const rec = store.before; const L = levelOf(rec.total); const sw = strongWeak(rec.scores);
   show(`
   <div class="stack">
-    ${store.leadSent ? `<div class="callout"><b>Your full report is on its way to WhatsApp.</b></div>` : ""}
+    ${store.leadSent ? `<div class="callout"><b>${CFG.waMode === "auto" ? "Your full report is on its way to WhatsApp." : "Your full report will reach your WhatsApp within a few hours."}</b></div>${chatBtn()}` : ""}
     ${returning ? `<span class="brand">Welcome back${store.name ? ", " + esc(store.name) : ""}</span>` : `<span class="brand">Your next step</span>`}
     <h2>${L.name === "Memory Genius" ? "Make your strong memory exam-proof" : "Raise your level in one live class"}</h2>
     <p>Your result shows the problem every student faces: you study hard, but a big part fades before the exam. In this 2-hour live class, Aravind Pasupathy shows you the methods to fix it, starting with your weakest area, <b>${esc(sw.weak.name)}</b>.</p>
@@ -647,6 +655,8 @@ api.config().then((r) => {
   if (r.data.classLabel) CFG.classLabel = r.data.classLabel;
   if (r.data.courseUrl) CFG.courseUrl = r.data.courseUrl;
   if (r.data.courseLabel) CFG.courseLabel = r.data.courseLabel;
+  if (r.data.waMode) CFG.waMode = r.data.waMode;
+  if (/^[6-9]\d{9}$/.test(r.data.waChatNumber || "")) CFG.waChatNumber = r.data.waChatNumber;
   const lab = document.querySelectorAll(".offer .brand");
   lab.forEach((el) => { if (/^Live class/.test(el.textContent)) el.textContent = "Live class · " + CFG.classLabel; });
 });

@@ -2,8 +2,7 @@
 // Layout used ONLY by the BrainoDad memory test pages (/memory-test, /memory-test/after, /memory-test/report).
 // The homepage keeps using Layout.astro and is not changed.
 //
-// Meta Pixel: the NEW BrainoDad pixel only. Its ID comes from the Railway variable PUBLIC_BD_PIXEL_ID.
-// If that variable is empty, no pixel loads at all. The old BrainoDad pixel (1998316064175555) and the
+// Meta Pixel: the NEW BrainoDad pixel only (1717334336459142). The old BrainoDad pixel (1998316064175555) and the
 // FluencyJet pixel are never used on brainodad.com.
 import '../styles/memory-test.css';
 
@@ -14,7 +13,8 @@ const {
   noindex = false,
 } = Astro.props;
 
-const pixelId = (import.meta.env.PUBLIC_BD_PIXEL_ID || '').replace(/\D/g, '');
+// New "BrainoDad Website" pixel (Brisbane portfolio). A Railway variable can override it.
+const pixelId = (import.meta.env.PUBLIC_BD_PIXEL_ID || '1717334336459142').replace(/\D/g, '');
 const BLOCKED_PIXELS = ['1998316064175555', '1246171816816642']; // old BrainoDad + FluencyJet: never here
 const usePixel = pixelId.length > 5 && !BLOCKED_PIXELS.includes(pixelId);
 const canonical = 'https://brainodad.com' + path;
