@@ -102,7 +102,7 @@ function neighbourScore(placedItems, seq) {
   return ok;
 }
 function progress(i) {
-  let s = '<div class="topline"><span>Task ' + (i + 1) + " of 5 · " + esc(PARTS[i].name) + "</span><span>" + (S.phase === "after" ? "After class" : "Before class") + '</span></div><div class="prog" aria-hidden="true">';
+  let s = '<div class="topline"><span>Task ' + (i + 1) + " of 5 · " + esc(PARTS[i].name) + "</span><span>" + (S.phase === "after" ? "Test 2" : "Test 1") + '</span></div><div class="prog" aria-hidden="true">';
   for (let k = 0; k < 5; k++) s += '<span class="' + (k < i ? "done" : k === i ? "now" : "") + '"></span>';
   return s + "</div>";
 }
@@ -237,8 +237,8 @@ function afterGate(msg) {
   show(`
   <div class="stack">
     <span class="brand">BrainoDad · After-class test</span>
-    <h1>Your after-class memory test</h1>
-    <p class="muted">Enter the WhatsApp number you used for your before-class test. Your result will be compared with it.</p>
+    <h1>Test 2: your memory test after the class</h1>
+    <p class="muted">Enter the WhatsApp number you used for Test 1. Your Test 2 score will be compared with it.</p>
     <form class="card stack" id="af">
       <label for="aph">WhatsApp number</label>
       <input id="aph" type="tel" inputmode="numeric" autocomplete="tel" placeholder="98765 43210" maxlength="14" value="${esc(store.phone || "")}">
@@ -255,7 +255,7 @@ function afterGate(msg) {
     btn.disabled = false; btn.textContent = "Continue";
     const st = r.data.status;
     if (!r.ok && !st) { m.textContent = "We couldn't reach our server. Check your internet and tap Continue again."; return; }
-    if (st === "not_found") { m.textContent = "We couldn't find a before-class test with this number. Check the number, or take the free test first."; return; }
+    if (st === "not_found") { m.textContent = "We couldn't find a Test 1 with this number. Check the number, or take the free test first."; return; }
     const nm = r.data.firstName || "";
     if (st === "closed") { m.textContent = "Found you" + (nm ? ", " + nm : "") + "! This test opens during the live class. Keep this page ready."; return; }
     if (st === "done" && r.data.before && r.data.after) {
@@ -294,9 +294,9 @@ function partDone(i, frac, line) {
     <p class="brand">${esc(P.name)} done</p>
     <div class="big">${cheer}</div>
     <p style="font-size:1.15rem">${line}</p>
-    <p class="muted small">${last ? (S.phase === "after" ? "Your before and after comparison is ready." : "Your level is ready. Your full report goes to your WhatsApp.") : i === 2 ? "Answers are revealed at the end. Your full report will be sent to your WhatsApp." : "Answers are revealed at the end."}</p>
+    <p class="muted small">${last ? (S.phase === "after" ? "Your Test 1 and Test 2 scores are ready." : "Your level is ready. Your full report goes to your WhatsApp.") : i === 2 ? "Answers are revealed at the end. Your full report will be sent to your WhatsApp." : "Answers are revealed at the end."}</p>
   </div>
-  <button class="btn" id="go">${last ? (S.phase === "after" ? "Show my before and after" : "Show my Exam Memory Score") : "Next: " + esc(PARTS[i + 1].name)}</button>
+  <button class="btn" id="go">${last ? (S.phase === "after" ? "Show my Test 1 → Test 2 result" : "Show my Exam Memory Score") : "Next: " + esc(PARTS[i + 1].name)}</button>
   ${last ? "" : `<p class="note">${4 - i} task${4 - i === 1 ? "" : "s"} left</p>`}`);
   $("go").onclick = () => (last ? finish() : intro(i + 1));
 }
@@ -337,7 +337,7 @@ function runRecall() {
     <div class="words">${shuffle(W).map((w) => `<div class="w">${esc(w)}</div>`).join("")}</div>
     <button class="btn ghost" id="ready">I've studied them</button></div>`);
   study(T.recallStudy, () => recallInput("Type every key term you remember",
-    `Most students remember about half of them. Type every one you can, in any order. After class, try to beat your own number.`,
+    `Most students remember about half of them. Type every one you can, in any order. In Test 2 after the class, try to beat your own number.`,
     T.recallAnswer, (typed) => {
       const found = matchWords(typed, W); S.detail.recall = [...found];
       partDone(0, found.size / W.length, `You remembered <b>${found.size} of ${W.length}</b> key terms.`);
@@ -543,7 +543,7 @@ function wireJoin() {
   }));
 }
 /* Step 2: the ₹99 live-class page. One action only: join the class.
-   The idea: today's score is only the "before"; the "after" score unlocks only in the live class.
+   The idea (tested with parents): "Your memory score today" + 3 steps — Test 1 today, live class, Test 2 after the class.
    School levels (Class 6–8, 9–12) speak to the parent, who pays. Final copy agreed 24 Nov 2026. */
 function offer(returning) {
   const rec = store.before; const sw = strongWeak(rec.scores);
@@ -558,14 +558,14 @@ function offer(returning) {
   <div class="stack">
     ${topLine}
     ${returning ? `<span class="brand">Welcome back${store.name ? ", " + esc(store.name) : ""}</span>` : ""}
-    <h1>${your} "before" score: ${rec.total} / 100</h1>
-    <p>${school
-      ? "This is the starting point. In one 2-hour live class, Aravind Pasupathy teaches your child the memory methods. Then your child takes the test again, and you see how much the score goes up."
-      : "This is your starting point. In one 2-hour live class, Aravind Pasupathy teaches you the memory methods. Then you take the test again and see how much your score goes up."}</p>
-    <div class="card stack center">
-      <div class="ba"><div class="baBox"><small>BEFORE</small><span class="b">${rec.total}</span></div><span class="arrow">→</span><div class="baBox lockd"><small>AFTER</small><span class="a">?</span><i aria-hidden="true">🔒</i></div></div>
-      <p class="small"><b>${your} "after" score unlocks only in the live class.</b></p>
-    </div>
+    <h1>${your} memory score today: ${rec.total} / 100</h1>
+    <p class="lead">${school ? "This is not your child's limit. The score can go up." : "This is not your limit. Your score can go up."}</p>
+    <ol class="steps" aria-label="Your 3 steps">
+      <li class="done"><i>1</i><div><b>Test 1 · Today</b><span>✅ Done</span></div><em>${rec.total}</em></li>
+      <li><i>2</i><div><b>Live class · ${esc(CFG.classLabel)}</b><span>2 hours with Aravind, in Tamil. Learn the memory methods.</span></div></li>
+      <li class="lockd"><i>3</i><div><b>Test 2 · After the class</b><span>${school ? "Your child's new score" : "Your new score"}</span></div><em>? 🔒</em></li>
+    </ol>
+    <div class="callout"><p><b>Take Test 2 after the class and see how much ${school ? "your child's" : "your"} score goes up.</b></p><p class="small muted">Test 2 is only for students who join the live class.</p></div>
     <div class="callout"><p>${your} weakest area today: <b>${esc(sw.weak.name)}</b>. In the class ${school ? "your child" : "you"} will learn <b>${esc(sw.weak.fix)}</b> to fix exactly this.</p></div>
     <div class="card offer stack">
       <span class="brand">Live class · ${esc(CFG.classLabel)} · On Zoom · In Tamil</span>
@@ -573,7 +573,7 @@ function offer(returning) {
       <ul class="ticks">
         <li>2-hour <b>live</b> class with Aravind, in Tamil (not a recording)</li>
         <li>Methods for key terms, dates, numbers and whole chapters</li>
-        <li>${your} <b>after-class retest</b> and before/after report on WhatsApp</li>
+        <li><b>Test 2 after the class</b>, to see ${school ? "your child's" : "your"} score go up (report on WhatsApp)</li>
         <li>${school ? "You can sit with your child and watch the class" : "Ask your doubts live"}</li>
       </ul>
       ${joinBig("join1")}
@@ -587,7 +587,7 @@ function offer(returning) {
     <div class="card stack">
       <span class="brand">Real result from last week's class</span>
       <p><b>Mugilan</b>, preparing for UPSC</p>
-      <div class="ba"><span class="b">62</span><span class="arrow">→</span><span class="a">90</span></div>
+      <div class="ba"><div class="baBox"><small>TEST 1</small><span class="b">62</span></div><span class="arrow">→</span><div class="baBox"><small>TEST 2</small><span class="a">90</span></div></div>
       <p class="center small muted">+28 points after one class</p>
     </div>
     <div class="card stack">
@@ -613,7 +613,7 @@ function fullReport(rec) {
   const L = levelOf(rec.total); const sw = strongWeak(rec.scores);
   show(`
   <div class="stack">
-    <span class="brand center">${store.name ? esc(store.name) + "'s " : "Your "}full report · before class</span>
+    <span class="brand center">${store.name ? esc(store.name) + "'s " : "Your "}full report · Test 1</span>
     <div class="center"><div class="lvl" style="background:${L.color}"><small>Your level</small><span>${esc(L.name)}</span></div></div>
     <div class="center scoreline"><span id="cnum">${rec.total}</span><small> / 100</small></div>
     <p class="center muted small">${esc(LEVELS_CONTENT[rec.lvl].label)}</p>
@@ -627,6 +627,10 @@ function fullReport(rec) {
   </div>`);
   countUp(rec.total); wireJoin(); wireShare(rec, null);
 }
+function gainLabel(st) {
+  const g = (st.after?.total ?? 0) - (st.before?.total ?? 0);
+  return (st.name ? esc(st.name) + ": " : "") + (g > 0 ? "Test 1 → Test 2: your score went up!" : "Test 1 → Test 2");
+}
 function compare(fresh) {
   const b = store.before, a = store.after; const gain = a.total - b.total;
   const power = b.total < 100 ? Math.max(0, Math.round((100 * gain) / (100 - b.total))) : 0;
@@ -637,19 +641,19 @@ function compare(fresh) {
     : `<p class="center"><b>Ask Aravind in the class chat for today's course offer.</b></p>`;
   show(`
   <div class="stack">
-    <span class="brand center">${store.name ? esc(store.name) + "'s " : "Your "}before and after</span>
-    <div class="ba"><span class="b">${b.total}</span><span class="arrow">→</span><span class="a">${a.total}</span></div>
+    <span class="brand center">${gainLabel(store)}</span>
+    <div class="ba"><div class="baBox"><small>TEST 1</small><span class="b">${b.total}</span></div><span class="arrow">→</span><div class="baBox"><small>TEST 2</small><span class="a">${a.total}</span></div></div>
     <div class="three">
       <div><b>${gain > 0 ? "+" : ""}${gain}</b><span>points gained</span></div>
       <div><b>${power}%</b><span>improvement power</span></div>
       <div><b style="color:${La.color}">${esc(La.name.replace("Memory ", ""))}</b><span>${Lb.name === La.name ? "level held" : "new level"}</span></div>
     </div>
     <div class="card stack"><h3>Your forgetting check</h3>
-      <div class="keep"><div><b style="color:var(--soft)">${b.kept}/${b.nWords}</b><span>terms kept before class</span></div><div><b>${a.kept}/${a.nWords}</b><span>terms kept after class</span></div><div><b>${a.kept - b.kept >= 0 ? "+" : ""}${a.kept - b.kept}</b><span>more terms kept</span></div></div></div>
+      <div class="keep"><div><b style="color:var(--soft)">${b.kept}/${b.nWords}</b><span>terms kept in Test 1</span></div><div><b>${a.kept}/${a.nWords}</b><span>terms kept in Test 2</span></div><div><b>${a.kept - b.kept >= 0 ? "+" : ""}${a.kept - b.kept}</b><span>more terms kept</span></div></div></div>
     <div class="card bars dual">
       ${PARTS.map((p) => { const bv = b.scores[p.key] || 0, av = a.scores[p.key] || 0; return `<div class="bar"><div class="lbl"><span>${esc(p.name)}</span><b>${fmt(bv)} → ${fmt(av)}</b></div>
         <div class="track2"><i class="before" style="width:${(100 * bv) / p.pts}%"></i></div><div class="track2"><i style="width:${(100 * av) / p.pts}%"></i></div></div>`; }).join("")}
-      <p class="muted small">Grey = before class · Teal = after class</p>
+      <p class="muted small">Grey = Test 1 · Teal = Test 2</p>
     </div>
     ${gain > 0 ? `<div class="callout"><b>Biggest jump:</b> ${esc(top.name)}.</div>` : ""}
     <p class="note">Honest note: part of any second-try gain comes from knowing the test format. The rest is your new method.</p>
