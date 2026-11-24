@@ -1,0 +1,59 @@
+---
+// Layout used ONLY by the BrainoDad memory test pages (/memory-test, /memory-test/after, /memory-test/report).
+// The homepage keeps using Layout.astro and is not changed.
+//
+// Meta Pixel: the NEW BrainoDad pixel only. Its ID comes from the Railway variable PUBLIC_BD_PIXEL_ID.
+// If that variable is empty, no pixel loads at all. The old BrainoDad pixel (1998316064175555) and the
+// FluencyJet pixel are never used on brainodad.com.
+import '../styles/memory-test.css';
+
+const {
+  title = 'Free Study Memory Test | BrainoDad',
+  description = 'How much of what you study will you remember on exam day? Take the free 7-minute BrainoDad Exam Memory Test.',
+  path = '/memory-test',
+  noindex = false,
+} = Astro.props;
+
+const pixelId = (import.meta.env.PUBLIC_BD_PIXEL_ID || '').replace(/\D/g, '');
+const BLOCKED_PIXELS = ['1998316064175555', '1246171816816642']; // old BrainoDad + FluencyJet: never here
+const usePixel = pixelId.length > 5 && !BLOCKED_PIXELS.includes(pixelId);
+const canonical = 'https://brainodad.com' + path;
+---
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="theme-color" content="#0d1838" />
+    <meta name="description" content={description} />
+    <meta name="robots" content={noindex ? 'noindex,nofollow' : 'index,follow'} />
+    <link rel="canonical" href={canonical} />
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+    <meta property="og:type" content="website" />
+    <meta property="og:url" content={canonical} />
+    <meta property="og:site_name" content="BrainoDad" />
+    <meta property="og:title" content={title} />
+    <meta property="og:description" content={description} />
+    <meta name="twitter:card" content="summary" />
+    <title>{title}</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=Baloo+2:wght@600;700;800&family=Mukta:wght@400;500;700&display=swap" rel="stylesheet" />
+    {usePixel && (
+      <script is:inline define:vars={{ pixelId }}>
+        !function(f,b,e,v,n,t,s){if(f.fbq)return;n=f.fbq=function(){n.callMethod?
+        n.callMethod.apply(n,arguments):n.queue.push(arguments)};if(!f._fbq)f._fbq=n;
+        n.push=n;n.loaded=!0;n.version='2.0';n.queue=[];t=b.createElement(e);t.async=!0;
+        t.src=v;s=b.getElementsByTagName(e)[0];s.parentNode.insertBefore(t,s)}(window,
+        document,'script','https://connect.facebook.net/en_US/fbevents.js');
+        // autoConfig off: the pixel must NOT read buttons or form fields (phone numbers, names) by itself.
+        fbq('set', 'autoConfig', false, pixelId);
+        fbq('init', pixelId);
+        fbq('track', 'PageView');
+      </script>
+    )}
+  </head>
+  <body>
+    <slot />
+  </body>
+</html>
