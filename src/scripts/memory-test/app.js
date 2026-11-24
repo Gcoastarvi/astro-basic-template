@@ -132,9 +132,16 @@ function home() {
     <label for="nm">Your first name <span class="muted small">(optional)</span></label>
     <input id="nm" type="text" autocomplete="given-name" maxlength="20" placeholder="e.g. Priya" value="${esc(store.name || "")}">
     <p class="wanote">${WA_ICON.replace('class="waic"', 'class="waic"')}<span>Keep your WhatsApp number ready for your full report.</span></p>
-    <button class="btn" id="go">Start my free test</button>
+    <div id="askchild" class="card stack" style="border-color:var(--gold)${store.savedKey || !(pick === "ms" || pick === "hs") ? ";display:none" : ""}">
+      <h3>Is your child with you right now?</h3>
+      <div class="row" style="flex-wrap:nowrap">
+        <button class="btn" id="yeskid" style="flex:1">Yes, start now</button>
+        <button class="btn teal" id="later" style="flex:1">No, save it for tonight</button>
+      </div>
+      <p class="muted small">Busy now? We'll remind you on WhatsApp when your child is home.</p>
+    </div>
+    <button class="btn" id="go"${!store.savedKey && (pick === "ms" || pick === "hs") ? ' style="display:none"' : ""}>Start my free test</button>
     <p id="gomsg" class="warn center" aria-live="polite"></p>
-    ${store.savedKey ? "" : `<button class="btn ghost" id="later" ${pick === "comp" ? 'style="display:none"' : ""}>My child isn't with me now · Save it for tonight</button>`}
     <div class="stack" style="gap:8px">
       ${PARTS.map((p, i) => `<div class="lp"><i>${i + 1}</i><div><b>${esc(p.name)}</b><small>${esc(p.exam)}</small></div></div>`).join("")}
     </div>
@@ -143,9 +150,11 @@ function home() {
   document.querySelectorAll(".track").forEach((b) => (b.onclick = () => {
     pick = b.dataset.k;
     document.querySelectorAll(".track").forEach((x) => { x.classList.toggle("on", x === b); x.setAttribute("aria-checked", x === b); }); $("gomsg").textContent = "";
-    if ($("later")) $("later").style.display = pick === "comp" ? "none" : "";
+    const school = pick === "ms" || pick === "hs";
+    if (!store.savedKey) { $("askchild").style.display = school ? "" : "none"; $("go").style.display = school ? "none" : ""; }
   }));
-  if ($("later")) $("later").onclick = () => saveForLater(pick === "ms" || pick === "hs" ? pick : "");
+  $("later").onclick = () => saveForLater(pick === "ms" || pick === "hs" ? pick : "");
+  $("yeskid").onclick = () => $("go").onclick();
   $("go").onclick = () => {
     if (!pick) { $("gomsg").textContent = "Please tap your level above first."; $("lvlh").scrollIntoView({ behavior: reduced ? "auto" : "smooth", block: "center" }); return; }
     store.name = $("nm").value.trim().slice(0, 20); store.lvl = pick; save(store); newRun("before", pick); intro(0);
