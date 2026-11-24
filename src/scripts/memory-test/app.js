@@ -117,8 +117,7 @@ function home() {
     <span class="brand">BrainoDad · Exam Memory Test</span>
     ${store.savedKey ? `<div class="callout"><b>Welcome back! Your child's test is ready.</b><br><span class="small">Give the phone to your child and tap "Start my free test" below. The full report will come to your WhatsApp.</span></div>` : ""}
     <h1>Free Study Memory Test</h1>
-    <p class="muted">How much of what you study will you remember on exam day? 5 short tasks built like real study: key terms, timelines, facts and figures, a textbook paragraph and a surprise recall.</p>
-    <div class="wabox">${WA_ICON}<div><b>Your full report comes on WhatsApp</b><p>You see your memory level on screen. Your score out of 100, 5 skill scores and weakest area are sent free to your WhatsApp number at the end.</p></div></div>
+    <div class="wabox">${WA_ICON}<div><b>Your full report comes on WhatsApp</b></div></div>
     <div class="facts">
       <div class="fact"><b>6–8 min</b><span>never more than 10</span></div>
       <div class="fact"><b>Free</b><span>no payment</span></div>
@@ -760,6 +759,8 @@ async function openSaved(k) {
     // a fresh start for the child on this phone, linked to the parent's saved number
     const keep = { anon: store.anon };
     store = Object.assign(keep, { savedKey: k, lvl: r.data.track }); save(store);
+    // the child's test counts for the parent's ad, not this phone's first visit
+    if (r.data.attrib && r.data.attrib.campaign) { Object.assign(attrib, r.data.attrib); try { localStorage.setItem("bd_mt_attrib_v1", JSON.stringify(attrib)); } catch (e) {} }
   }
   history.replaceState(null, "", location.pathname);
   home();
