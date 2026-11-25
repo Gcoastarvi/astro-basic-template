@@ -49,9 +49,13 @@ export function metaIds() {
 }
 
 const STANDARD = ["PageView", "Lead", "InitiateCheckout", "Purchase"];
+/* Paid-first students (/memory-test/class) send no test events, so they never mix with
+   the free-test campaign's Lead/checkout signals. */
+let QUIET = false;
+export function setQuiet(v) { QUIET = Boolean(v); }
 export function pixel(name, extra) {
   try {
-    if (typeof window.fbq !== "function") return;
+    if (QUIET || typeof window.fbq !== "function") return;
     const a = getAttrib();
     const params = Object.assign({ content_name: "memory_test", campaign: a.campaign }, extra || {});
     const opts = { eventID: name + "_" + Date.now() + "_" + Math.random().toString(36).slice(2, 8) };

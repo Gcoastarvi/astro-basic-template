@@ -8,16 +8,20 @@
    - Meta Pixel events (new BrainoDad pixel only) at each step, with no personal data. */
 import { PAIRS, LEVELS_CONTENT, T, PARTS, LEVELS, MSG, levelOf, SCHOOL_TRACKS, VERSION } from "./content.js";
 import { api, setBase } from "./api.js";
-import { getAttrib, metaIds, pixel, taggedLink } from "./track.js";
+import { getAttrib, metaIds, pixel, taggedLink, setQuiet } from "./track.js";
 
 /* ================= SETUP ================= */
 const $app = document.getElementById("app");
-const MODE = $app.dataset.mode || "before"; // before | after | report
+const MODE = $app.dataset.mode || "before"; // before | after | report | paid
+/* paid = students who already paid ₹99 (paid-first funnel), at /memory-test/class:
+   same Test 1, full score on screen, never the ₹99 offer. */
+const PAID = MODE === "paid";
 setBase($app.dataset.api);
 const CFG = { joinUrl: $app.dataset.join, classLabel: "This Sunday · 5–7 PM", courseUrl: "", courseLabel: "Join the 21-Day Course · ₹3,500", waMode: "manual", waChatNumber: "" };
 /* manual = Aravind sends each report himself, so promise "within a few hours", not "in a minute" */
 const etaText = () => (CFG.waMode === "auto" ? "Free. Arrives in under a minute." : "Free. Sent personally to your WhatsApp within a few hours.");
 const attrib = getAttrib();
+if (PAID) { Object.assign(attrib, { campaign: "A_paid_first", landing: "/memory-test/class" }); setQuiet(true); }
 
 function howText(i) {
   const C = S.C, L = LEVELS_CONTENT[S.lvl];
@@ -40,7 +44,7 @@ const esc = (s) => String(s).replace(/[&<>"']/g, (c) => ({ "&": "&amp;", "<": "&
 const reduced = window.matchMedia && window.matchMedia("(prefers-reduced-motion: reduce)").matches;
 const $ = (id) => document.getElementById(id);
 const fmt = (n) => (Number.isInteger(n) ? String(n) : n.toFixed(1));
-const KEY = "bd_exam_memory_live_v4";
+const KEY = PAID ? "bd_exam_memory_paid_v4" : "bd_exam_memory_live_v4";
 function load() { try { return JSON.parse(localStorage.getItem(KEY)) || {}; } catch (e) { return {}; } }
 function save(o) { try { localStorage.setItem(KEY, JSON.stringify(o)); } catch (e) {} }
 let store = load();
@@ -110,11 +114,12 @@ function progress(i) {
 /* ================= SCREENS ================= */
 function home() {
   if (store.before && store.after) return compare(false);
-  if (store.before) return offer(true);
+  if (store.before) return PAID ? paidResult(store.before) : offer(true);
   let pick = store.lvl || "";
   show(`
   <div class="stack">
     <span class="brand">BrainoDad · Exam Memory Test</span>
+    ${PAID ? `<div class="callout"><b>For students booked in the live class.</b><br><span class="small">Take Test 1 now, before the class. After the class you take Test 2 and see how much your score goes up.</span></div>` : ""}
     ${store.savedKey ? `<div class="callout"><b>Welcome back! Your child's test is ready.</b><br><span class="small">Give the phone to your child and tap "Start my free test" below. The full report will come to your WhatsApp.</span></div>` : ""}
     <h1>Free Study Memory Test</h1>
     <div class="wabox">${WA_ICON}<div><b>Your full report comes on WhatsApp</b></div></div>
@@ -131,7 +136,7 @@ function home() {
     <label for="nm">Your first name <span class="muted small">(optional)</span></label>
     <input id="nm" type="text" autocomplete="given-name" maxlength="20" placeholder="e.g. Priya" value="${esc(store.name || "")}">
     <p class="wanote">${WA_ICON.replace('class="waic"', 'class="waic"')}<span>Keep your WhatsApp number ready for your full report.</span></p>
-    <div id="askchild" class="card stack" style="border-color:var(--gold)${store.savedKey || !(pick === "ms" || pick === "hs") ? ";display:none" : ""}">
+    <div id="askchild" class="card stack" style="border-color:var(--gold)${PAID || store.savedKey || !(pick === "ms" || pick === "hs") ? ";display:none" : ""}">
       <h3>Is your child with you right now?</h3>
       <div class="row" style="flex-wrap:nowrap">
         <button class="btn" id="yeskid" style="flex:1">Yes, start now</button>
@@ -139,7 +144,7 @@ function home() {
       </div>
       <p class="muted small">Busy now? We'll remind you on WhatsApp when your child is home.</p>
     </div>
-    <button class="btn" id="go"${!store.savedKey && (pick === "ms" || pick === "hs") ? ' style="display:none"' : ""}>Start my free test</button>
+    <button class="btn" id="go"${!PAID && !store.savedKey && (pick === "ms" || pick === "hs") ? ' style="display:none"' : ""}>Start my free test</button>
     <p id="gomsg" class="warn center" aria-live="polite"></p>
     <div class="stack" style="gap:8px">
       ${PARTS.map((p, i) => `<div class="lp"><i>${i + 1}</i><div><b>${esc(p.name)}</b><small>${esc(p.exam)}</small></div></div>`).join("")}
@@ -150,7 +155,7 @@ function home() {
     pick = b.dataset.k;
     document.querySelectorAll(".track").forEach((x) => { x.classList.toggle("on", x === b); x.setAttribute("aria-checked", x === b); }); $("gomsg").textContent = "";
     const school = pick === "ms" || pick === "hs";
-    if (!store.savedKey) { $("askchild").style.display = school ? "" : "none"; $("go").style.display = school ? "none" : ""; }
+    if (!store.savedKey && !PAID) { $("askchild").style.display = school ? "" : "none"; $("go").style.display = school ? "none" : ""; }
   }));
   $("later").onclick = () => saveForLater(pick === "ms" || pick === "hs" ? pick : "");
   $("yeskid").onclick = () => $("go").onclick();
@@ -466,14 +471,23 @@ function reviewHtml(rec) {
     ${rec.read.filter((r) => !r.good).map((r) => `<li>${esc(r.q)} <b>${esc(r.a)}</b></li>`).join("")}
   </ul></details>`;
 }
+/* No big numbers here: a large number next to the level was read as the score. */
+function keepSentence(rec) {
+  const kept = Math.min(rec.kept, rec.first);
+  if (rec.first === 0) return "Right after studying, the key terms were hard to remember. That is exactly what memory methods fix.";
+  return kept < rec.first
+    ? `Right after studying, you remembered <b>${rec.first} terms</b>. A few minutes later, only <b>${kept}</b>.`
+    : `Right after studying, you remembered <b>${rec.first} terms</b>, and you still had all of them a few minutes later.`;
+}
 function keepHtml(rec) {
   const rate = rec.first > 0 ? Math.round((100 * Math.min(rec.kept, rec.first)) / rec.first) : 0;
   return `<div class="card stack"><h3>Your forgetting check</h3>
-    <div class="keep"><div><b>${rec.first}</b><span>terms right after studying</span></div><div><b>${rec.kept}</b><span>terms a few minutes later</span></div><div><b>${rec.first > 0 ? rate + "%" : "–"}</b><span>kept</span></div></div>
+    <p>${keepSentence(rec)}</p>
     <p class="muted small">Without a method, forgetting keeps going for days. This is the gap the class works on.</p></div>`;
 }
 /* Step 1 after the free test: show the level and the forgetting stat, keep the detailed report locked behind WhatsApp */
 function teaser(rec, fresh) {
+  if (PAID) return paidTeaser(rec, fresh);
   const L = levelOf(rec.total); const school = SCHOOL_TRACKS.includes(rec.lvl);
   const rate = rec.first > 0 ? Math.round((100 * Math.min(rec.kept, rec.first)) / rec.first) : 0; const lost = rec.first - Math.min(rec.kept, rec.first);
   const consentText = school ? "I am the parent or guardian. Send this student's report and class details to this number." : "Send my report and class details to this WhatsApp number.";
@@ -483,7 +497,7 @@ function teaser(rec, fresh) {
     <div class="center"><div class="lvl" style="background:${L.color}"><small>Your study memory level</small><span>${esc(L.name)}</span></div></div>
     <div class="card stack">
       <h3>Your forgetting check</h3>
-      <div class="keep"><div><b>${rec.first}</b><span>terms right after studying</span></div><div><b>${rec.kept}</b><span>terms a few minutes later</span></div><div><b>${rec.first > 0 ? rate + "%" : "–"}</b><span>kept</span></div></div>
+      <p>${keepSentence(rec)}</p>
       <p>${lost > 0 ? `You lost <b>${lost} term${lost === 1 ? "" : "s"}</b> in just a few minutes. Without a method, this forgetting continues for days, right up to your exam.` : `You kept everything for a few minutes. Real exams test you weeks later, and that is where a method makes the difference.`}</p>
     </div>
     <div class="card stack locked">
@@ -542,6 +556,64 @@ function wireJoin() {
     api.event({ attemptId: store.beforeId || null, anonId: store.anon, type: "join_click", attrib });
   }));
 }
+/* ---------- Paid students: ask for WhatsApp (needed to match Test 2), then show everything ---------- */
+function paidTeaser(rec, fresh) {
+  const L = levelOf(rec.total);
+  const consentText = "Send my score and class reminders to this WhatsApp number.";
+  show(`
+  <div class="stack">
+    <span class="brand center">${store.name ? esc(store.name) + ", your" : "Your"} result is ready</span>
+    <div class="center"><div class="lvl" style="background:${L.color}"><small>Your study memory level</small><span>${esc(L.name)}</span></div></div>
+    <form class="card stack" id="wa">
+      <h3>Save your score for Test 2</h3>
+      <p class="muted small">After the class you take Test 2. Your WhatsApp number lets us compare the two scores.</p>
+      <label for="ph">Your WhatsApp number</label>
+      <input id="ph" type="tel" inputmode="numeric" autocomplete="tel" placeholder="98765 43210" maxlength="14" value="${esc(store.phone || "")}">
+      <label class="check"><input type="checkbox" id="cons"> ${consentText}</label>
+      <button class="btn teal" id="wago">Show my full score</button>
+      <p id="svmsg" class="muted small" aria-live="polite"></p>
+    </form>
+    <button class="linkbtn" id="skip">Skip and show my score</button>
+  </div>`);
+  if (fresh) confetti();
+  $("wa").onsubmit = async (e) => {
+    e.preventDefault(); const m = $("svmsg"); const d = cleanPhone($("ph").value);
+    if (!d) { m.textContent = "Please enter a 10-digit WhatsApp number."; return; }
+    if (!$("cons").checked) { m.textContent = "Please tick the box so we can save your score."; return; }
+    const btn = $("wago"); btn.disabled = true; btn.textContent = "Saving…";
+    const r = await api.lead({ attemptId: store.beforeId, anonId: store.anon, phone: d, consent: true, consentText, track: rec.lvl, firstName: store.name || "", rec, attrib });
+    btn.disabled = false; btn.textContent = "Show my full score";
+    if (!r.ok) { m.textContent = "We couldn't reach our server. Check your internet and tap the button again."; return; }
+    store.phone = d; store.leadSent = true; save(store);
+    paidResult(rec);
+  };
+  $("skip").onclick = () => paidResult(rec);
+}
+function paidResult(rec) {
+  const L = levelOf(rec.total); const sw = strongWeak(rec.scores);
+  show(`
+  <div class="stack">
+    <div class="callout"><b>✅ Your seat in the live class is booked.</b></div>
+    <h1>Your memory score today: <span id="cnum">${rec.total}</span> / 100</h1>
+    <p class="lead">This is not your limit. Your score can go up.</p>
+    <ol class="steps" aria-label="Your 3 steps">
+      <li class="done"><i>1</i><div><b>Test 1 · Today</b><span>✅ Done</span></div><em>${rec.total}</em></li>
+      <li><i>2</i><div><b>Live class · ${esc(CFG.classLabel)}</b><span>2 hours with Aravind, in Tamil. Learn the memory methods.</span></div></li>
+      <li class="lockd"><i>3</i><div><b>Test 2 · After the class</b><span>Your new score</span></div><em>? 🔒</em></li>
+    </ol>
+    <div class="center"><div class="lvl" style="background:${L.color}"><small>Your study memory level</small><span>${esc(L.name)}</span></div></div>
+    <p class="center">${esc(MSG[L.name])}</p>
+    <div class="callout"><p><b>You did best at:</b> ${esc(sw.best.name)}.</p><p><b>Your weakest area today:</b> ${esc(sw.weak.name)}. In the class you will learn ${esc(sw.weak.fix)} to fix exactly this.</p></div>
+    <div class="card bars">${barsHtml(rec)}</div>
+    ${keepHtml(rec)}
+    ${reviewHtml(rec)}
+    ${store.leadSent ? "" : `<div class="card stack"><p><b>Add your WhatsApp number</b> so we can compare your Test 2 score after the class.</p><button class="btn ghost" id="addwa">Add my WhatsApp number</button></div>`}
+    <p class="note">See you in the class. Your class link comes on WhatsApp.</p>
+  </div>`);
+  countUp(rec.total);
+  if ($("addwa")) $("addwa").onclick = () => paidTeaser(rec, false);
+}
+
 /* Step 2: the ₹99 live-class page. One action only: join the class.
    The idea (tested with parents): "Your memory score today" + 3 steps — Test 1 today, live class, Test 2 after the class.
    School levels (Class 6–8, 9–12) speak to the parent, who pays. Final copy agreed 24 Nov 2026. */
@@ -782,7 +854,9 @@ async function reportPage() {
   }
   Object.assign(store, { name: r.data.firstName || store.name || "", lvl: r.data.track, before: r.data.before, beforeId: r.data.beforeAttemptId, leadSent: true });
   if (r.data.after) { store.after = r.data.after; save(store); return compare(false); }
-  save(store); fullReport(r.data.before);
+  save(store);
+  if (r.data.paid) return paidResult(r.data.before); // paid students never see the ₹99 offer
+  fullReport(r.data.before);
 }
 
 /* ================= START ================= */
