@@ -31,6 +31,7 @@ export const api = {
   lead: (b) => call("POST", "/lead", b, 12000),
   afterCheck: (b) => call("POST", "/after/check", b),
   event: (b) => call("POST", "/event", b, 5000),
+  progress: (b) => call("POST", "/progress", b, 6000),
   save: (b) => call("POST", "/save", b, 12000),
   saved: (k) => call("GET", "/saved?k=" + encodeURIComponent(k), null, 9000),
   report: (token) => call("GET", "/report?t=" + encodeURIComponent(token), null, 9000),

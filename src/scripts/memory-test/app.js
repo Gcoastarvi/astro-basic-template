@@ -54,8 +54,14 @@ let S = {};
 function newRun(phase, lvl) {
   const form = phase === "after" ? "B" : "A";
   S = { phase, lvl, form, C: LEVELS_CONTENT[lvl][form], pairs: PAIRS[form], scores: {}, detail: {}, skipped: [], part: 0, id: rid() };
-  api.start({ attemptId: S.id, anonId: store.anon, phase, track: lvl, form, version: VERSION, attrib, beforeAttemptId: phase === "after" ? store.beforeId || null : null, afterToken: phase === "after" ? store.afterToken || null : null });
+  S.started = api.start({ attemptId: S.id, anonId: store.anon, phase, track: lvl, form, version: VERSION, attrib, beforeAttemptId: phase === "after" ? store.beforeId || null : null, afterToken: phase === "after" ? store.afterToken || null : null });
   pixel("TestStart", { phase });
+}
+/* Drop-off tracking: tell the server which screen the student has reached (no personal data).
+   Waits for the "started" call first so the server always knows the test. */
+function step(name) {
+  const run = S; if (!run.id || !run.started) return;
+  run.started.then(() => { if (run.id) api.progress({ attemptId: run.id, step: name }); });
 }
 /* 10-digit Indian mobile, starting 6–9 */
 const cleanPhone = (v) => { const d = String(v || "").replace(/\D/g, "").slice(-10); return /^[6-9]\d{9}$/.test(d) ? d : ""; };
@@ -275,7 +281,7 @@ function afterGate(msg) {
 }
 
 function intro(i) {
-  S.part = i; const P = PARTS[i];
+  S.part = i; const P = PARTS[i]; step("t" + (i + 1) + "_intro");
   show(`${progress(i)}
   <div class="stack">
     <span class="brand">${i === 4 ? "Final task" : "Task " + (i + 1)} · ${P.pts} points</span>
@@ -292,6 +298,7 @@ function partDone(i, frac, line) {
   const P = PARTS[i]; frac = Math.max(0, Math.min(1, frac));
   S.scores[P.key] = Math.round(frac * P.pts * 10) / 10;
   if (i < 4) pixel("Task" + (i + 1) + "Done", { phase: S.phase });
+  step("t" + (i + 1) + "_done");
   const last = i === 4;
   const cheer = frac >= 0.8 ? "Excellent!" : frac >= 0.5 ? "Well done!" : frac > 0 ? "Good effort!" : "Task complete.";
   show(`${progress(i)}
@@ -308,7 +315,7 @@ function partDone(i, frac, line) {
 
 /* ---- typed free recall (Task 1 and Task 5); auto-saves when time ends ---- */
 function recallInput(title, hint, sec, onDone) {
-  const list = [];
+  const list = []; step("t" + (S.part + 1) + "_answer");
   show(`${progress(S.part)}<div class="stack">
     <h3>${title}</h3>
     <p class="muted small">${hint}</p>
@@ -335,7 +342,7 @@ function recallInput(title, hint, sec, onDone) {
 
 /* ---- Task 1: Keyword Recall ---- */
 function runRecall() {
-  const W = S.C.words;
+  const W = S.C.words; step("t1_study");
   show(`${progress(0)}<div class="stack">
     <h3>Study these ${W.length} key terms</h3>
     ${timerRow}
@@ -350,14 +357,14 @@ function runRecall() {
 }
 /* ---- Task 2: Timeline Order ---- */
 function runSeq() {
-  const seq = S.C.seq; const n = seq.length;
+  const seq = S.C.seq; const n = seq.length; step("t2_study");
   show(`${progress(1)}<div class="stack">
     <h3>${esc(S.C.seqTitle)}: remember the order</h3>
     ${timerRow}
     <div class="seqshow">${seq.map((e, i) => `<div><b>${i + 1}</b>${esc(e)}</div>`).join("")}</div>
     <button class="btn ghost" id="ready">I've got the order</button></div>`);
   study(T.seqStudy, () => {
-    const opts = shuffle(seq); const placed = [];
+    const opts = shuffle(seq); const placed = []; step("t2_answer");
     show(`${progress(1)}<div class="stack">
       <h3>Tap the events from first to last</h3>
       ${timerRow}
@@ -382,14 +389,14 @@ function runSeq() {
 /* ---- Task 3: Facts & Figures ---- */
 function runFacts() {
   const nums = shuffle([...Array(88).keys()].map((k) => k + 11)).slice(0, 6);
-  const P = S.pairs.map((w, i) => ({ w, n: nums[i] })); S.detail.facts = P;
+  const P = S.pairs.map((w, i) => ({ w, n: nums[i] })); S.detail.facts = P; step("t3_study");
   show(`${progress(2)}<div class="stack">
     <h3>Remember each place's number</h3>
     ${timerRow}
     <div class="pairs">${P.map((p) => `<div class="pair"><span>${esc(p.w)}</span><em>${p.n}</em></div>`).join("")}</div>
     <button class="btn ghost" id="ready">I've studied them</button></div>`);
   study(T.factsStudy, () => {
-    const order = shuffle(P);
+    const order = shuffle(P); step("t3_answer");
     show(`${progress(2)}<form class="stack" id="f">
       <h3>Type the number for each place</h3>
       ${timerRow}
@@ -407,7 +414,7 @@ function runFacts() {
 }
 /* ---- Task 4: Textbook Paragraph ---- */
 function runRead() {
-  const PS = S.C.passage; const sec = LEVELS_CONTENT[S.lvl].readSec;
+  const PS = S.C.passage; const sec = LEVELS_CONTENT[S.lvl].readSec; step("t4_study");
   show(`${progress(3)}<div class="stack">
     <h3>Read carefully</h3>
     ${timerRow}
@@ -416,7 +423,7 @@ function runRead() {
   study(sec, () => {
     let q = 0, ok = 0; S.detail.read = [];
     const ask = () => {
-      const Q = PS.qs[q]; const opts = shuffle([Q.a].concat(Q.o));
+      const Q = PS.qs[q]; const opts = shuffle([Q.a].concat(Q.o)); step("t4_q" + (q + 1));
       show(`${progress(3)}<div class="stack">
         <div class="topline"><span>Question ${q + 1} of 5</span><span>From the paragraph</span></div>
         ${timerRow}
